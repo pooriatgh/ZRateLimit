@@ -1,13 +1,12 @@
 package services.rateLimit.proxy
 
-import akka.stream.RateExceededException
-import services.rateLimit.config.RateLimitConfig
 import services.rateLimit.service.RateLimitService
-import zio.*
+import zio._
+
 
 final case class RateLimitProxyLive(rateLimitService: RateLimitService)
     extends RateLimitProxyService {
-  override def start(port: Int, host: String): Task[Unit] = ???
+  override def start(port: Int, host: String): Task[Unit] = ZIO.succeed(())
 }
 
 object RateLimitProxyLive {
