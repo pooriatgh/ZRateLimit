@@ -1,6 +1,9 @@
 package client.rateLimit.services
 
+import client.rateLimit.models.{RateLimitConfigModel, RateLimitModel}
+import zio.Task
+
 trait RateLimitService {
-  def isRateLimited(key: String): Boolean
-  def increment(key: String): Unit
+  def checkIsLimited(key: String): Task[Boolean]
+  def addToCheck(model: RateLimitModel): Task[Unit]
 }
