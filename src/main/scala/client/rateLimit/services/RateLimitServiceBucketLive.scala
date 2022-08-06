@@ -1,7 +1,7 @@
-package services.rateLimit.service
+package client.rateLimit.services
 
-import services.rateLimit.config.RateLimitConfig
-import services.rateLimit.repository.RateLimitRepository
+import client.rateLimit.config.RateLimitConfig
+import client.rateLimit.repository.RateLimitRepository
 import zio._
 
 final case class RateLimitServiceBucketLive(

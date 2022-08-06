@@ -14,6 +14,8 @@ lazy val root = (project in file("."))
     ).map(_.cross(CrossVersion.for3Use2_13)) ++
       Seq(
         "dev.zio" %% "zio" % "2.0.0",
+        "dev.zio" %% "zio-json" % "0.3.0-RC10",
+        "io.d11" %% "zhttp" % "2.0.0-RC10",
         "dev.zio" %% "zio-streams" % "2.0.0",
         "org.typelevel" %% "cats-core" % "2.7.0",
         "org.typelevel" %% "cats-effect" % "3.3.14"

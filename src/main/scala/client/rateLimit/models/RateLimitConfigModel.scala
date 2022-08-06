@@ -1,4 +1,4 @@
-package services.rateLimit.config
+package client.rateLimit.models
 
 case class RateLimitConfigModel(
     maxRequests: Int,

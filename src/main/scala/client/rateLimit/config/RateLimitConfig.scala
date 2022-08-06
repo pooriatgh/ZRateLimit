@@ -1,5 +1,6 @@
-package services.rateLimit.config
+package client.rateLimit.config
 
+import client.rateLimit.models.RateLimitConfigModel
 import zio.Task
 import zio.macros._
 

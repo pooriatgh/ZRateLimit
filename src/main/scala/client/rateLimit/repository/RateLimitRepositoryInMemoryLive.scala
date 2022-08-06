@@ -1,4 +1,5 @@
-package services.rateLimit.repository
+package client.rateLimit.repository
+import client.rateLimit.models.RateLimitModel
 import zio._
 import zio.stm._
 

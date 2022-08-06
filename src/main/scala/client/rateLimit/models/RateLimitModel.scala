@@ -1,4 +1,4 @@
-package services.rateLimit.repository
+package client.rateLimit.models
 
 case class RateLimitModel(
     id: String,

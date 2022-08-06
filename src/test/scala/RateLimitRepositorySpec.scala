@@ -1,4 +1,5 @@
-import services.rateLimit.repository.{RateLimitModel, RateLimitRepository, RateLimitRepositoryInMemoryLive}
+import client.rateLimit.models.RateLimitModel
+import client.rateLimit.repository.{RateLimitRepository, RateLimitRepositoryInMemoryLive}
 import zio._
 import zio.stm.TMap
 import zio.test._

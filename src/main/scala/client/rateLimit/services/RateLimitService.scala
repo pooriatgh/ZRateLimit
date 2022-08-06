@@ -1,4 +1,4 @@
-package services.rateLimit.service
+package client.rateLimit.services
 
 trait RateLimitService {
   def isRateLimited(key: String): Boolean

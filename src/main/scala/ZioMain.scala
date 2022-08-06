@@ -1,7 +1,8 @@
-import services.rateLimit.config.RateLimitConfigInMemoryLive
-import services.rateLimit.proxy.{RateLimitProxyLive, RateLimitProxyService}
-import services.rateLimit.repository.{RateLimitModel, RateLimitRepositoryInMemoryLive}
-import services.rateLimit.service.RateLimitServiceBucketLive
+import client.rateLimit.config.RateLimitConfigInMemoryLive
+import client.rateLimit.models.RateLimitModel
+import client.rateLimit.server.{RateLimitServerLive, RateLimitServerService}
+import client.rateLimit.repository.RateLimitRepositoryInMemoryLive
+import client.rateLimit.services.RateLimitServiceBucketLive
 import zio.stm.TMap
 import zio.{ZIO, ZIOAppDefault, ZLayer}
 
@@ -10,13 +11,14 @@ object ZioMain extends ZIOAppDefault {
   def run: ZIO[Any, Throwable, Unit] = {
 
     ZIO
-      .serviceWithZIO[RateLimitProxyService](_.start(8080, "localhost"))
+      .serviceWithZIO[RateLimitServerService](_.start(8080, "localhost"))
       .provide(
         ZLayer.fromZIO(TMap.empty[String,RateLimitModel].commit),
-        RateLimitProxyLive.layer,
+        RateLimitServerLive.layer,
         RateLimitServiceBucketLive.layer,
         RateLimitRepositoryInMemoryLive.layer,
-        RateLimitConfigInMemoryLive.layer
+        RateLimitConfigInMemoryLive.layer,
+        ZLayer.Debug.mermaid
       )
 
   }
