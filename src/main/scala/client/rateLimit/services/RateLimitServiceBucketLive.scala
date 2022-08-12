@@ -2,35 +2,20 @@ package client.rateLimit.services
 
 import client.rateLimit.models.{RateLimitConfigModel, RateLimitModel}
 import client.rateLimit.models.RateLimitConfigModel.BucketConfig
-import client.rateLimit.models.RateLimitModel.BucketModel
+import client.rateLimit.models.BucketModel
 import client.rateLimit.repository.RateLimitRepository
 import zio.*
+import zio.Console.printLine
+
 
 final case class RateLimitServiceBucketLive(
     repo: RateLimitRepository
 ) extends RateLimitService {
 
   override def checkIsLimited(key: String): Task[Boolean] = {
-    for {
+    (for {
       a <- repo.get(key)
-      r <- ZIO
-        .fromOption(a)
-        .orElseFail(
-          new RuntimeException(
-            s"The $key not exist and you are " +
-              s"looking for it to check the rate limit"
-          )
-        )
-    } yield {
-      r match {
-        case bucket: BucketModel =>
-          bucket.capacity > 0
-        case _ =>
-          throw new RuntimeException(
-            "The model is not bucket model and you should try pass the correct model to isRateLimited method "
-          )
-      }
-    }
+    } yield a.isLimit).orElseFail(throw new Exception("Error"))
   }
 
   override def addToCheck(
@@ -38,8 +23,13 @@ final case class RateLimitServiceBucketLive(
   ): Task[Unit] = {
 
     model match {
-      case config: BucketModel =>
-        repo.put(config.id,config)
+      case m: BucketModel =>
+        val sequential = Schedule.recurs(2) andThen Schedule.spaced(2.second)
+        for{
+          _ <- printLine(s"charging buckets ${m.id}").repeat(sequential).fork
+          _ <-  repo.put(m.id, m).orElseFail(throw new Exception("Error"))
+          _ <- printLine(s"Done")
+        } yield ()
 
       case _ =>
         throw new RuntimeException(
@@ -47,6 +37,14 @@ final case class RateLimitServiceBucketLive(
         )
     }
 
+  }
+
+  override def increment(key: String): Task[Unit] = {
+    (for{
+      oldValue <- repo.get(key).map(_.asInstanceOf[BucketModel])
+      newValue = oldValue.copy(capacity = oldValue.capacity + 1)
+      _ <- repo.put(key,newValue)
+    } yield ()).orElseFail(throw new Exception("Error"))
   }
 }
 object RateLimitServiceBucketLive {

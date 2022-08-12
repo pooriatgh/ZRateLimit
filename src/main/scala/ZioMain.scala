@@ -5,14 +5,15 @@ import client.rateLimit.repository.RateLimitRepositoryInMemoryLive
 import client.rateLimit.server.routes.FooRoutes
 import client.rateLimit.services.RateLimitServiceBucketLive
 import zio.stm.TMap
-import zio.{ZIO, ZIOAppDefault, ZLayer}
+import zio.*
+import zio.Console.printLine
 
 object ZioMain extends ZIOAppDefault {
 
-  def run: ZIO[Any, Throwable, Unit] = {
+  def run = {
 
-    ZIO
-      .serviceWithZIO[RateLimitServerService](_.start(8080, "localhost"))
+     ZIO
+      .serviceWithZIO[RateLimitServerService](_.start(8030, "localhost"))
       .provide(
         ZLayer.fromZIO(TMap.empty[String, RateLimitModel].commit),
         RateLimitServerLive.layer,

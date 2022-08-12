@@ -1,7 +1,8 @@
 package client.rateLimit.repository
+import client.rateLimit.models.errors.RateLimitError
 import client.rateLimit.models.{RateLimitConfigModel, RateLimitModel}
-import zio._
-import zio.stm._
+import zio.*
+import zio.stm.*
 
 
 
@@ -10,28 +11,26 @@ case class RateLimitRepositoryInMemoryLive(db:TMap[String, RateLimitModel]) exte
 
   var dbUnsafe = Map.empty[String, RateLimitModel]
 
-  override def get(key: String): Task[Option[RateLimitModel]] = {
+  override def get(key: String) : ZIO[Any, RateLimitError, RateLimitModel] = {
     //ZIO.succeed(dbUnsafe.get(key))
     (for {
       elem <- db.get(key)
-    } yield elem).commit
+    } yield elem).commit.someOrFail[RateLimitModel,RateLimitError](RateLimitError.KeyNotFound(s"Key not found:$key"))
   }
 
 
-  override def put(key: String, rateLimit: RateLimitModel): Task[Unit] = {
-    //ZIO.succeed(dbUnsafe += (key -> rateLimit))
+  override def put(key: String, rateLimit: RateLimitModel): ZIO[Any, RateLimitError, Unit ] = {
     (for{
       _ <- db.put(key, rateLimit)
-      value <- db.values
-    } yield println(value) ).commit
+      _ <- db.values
+    } yield() ).commit
   }
 
-  override def delete(key: String): Task[Unit] =
-    ZIO.succeed(dbUnsafe -= key)
-//    (for {
-//      tMap <- db
-//      _ <- tMap.delete(key)
-//    } yield ()).commit
+  override def delete(key: String): ZIO[Any, RateLimitError, Unit ] =
+    (for{
+      _ <- db.delete(key)
+      _ <- db.values
+    } yield() ).commit
 }
 
 object RateLimitRepositoryInMemoryLive {

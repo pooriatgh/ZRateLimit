@@ -1,22 +1,26 @@
 package client.rateLimit.server
 
 import client.rateLimit.server.routes.FooRoutes
-import zhttp._
+import zhttp.*
 import zhttp.http.HttpApp
 import zhttp.service.Server
-import zio._
+import zio.*
+import zio.Console.printLine
 
 final case class RateLimitServerLive(fooRoutes: FooRoutes)
     extends RateLimitServerService {
   override def start(port: Int, host: String): Task[Unit] =
-    Server.start(port = 8066,http = allRoutes)
+    val sequential = Schedule.recurs(10) andThen Schedule.spaced(1.second)
+    for{
+      _ <-     printLine("charging buckets").repeat(sequential)
+      - <-     Server.start(port = port,http = allRoutes)
+    } yield ()
 
   val allRoutes: HttpApp[Any, Throwable] = {
     fooRoutes.routes
   }
 
 }
-
 
 object RateLimitServerLive {
   val layer: ZLayer[FooRoutes, Throwable, RateLimitServerService] =

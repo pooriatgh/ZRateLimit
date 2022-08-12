@@ -8,6 +8,7 @@ import zio.json._
 final case class FooRoutes(rateLimitService: RateLimitService) {
    val routes: Http[Any, Nothing, Request, Response] = Http.collectZIO[Request]{
      case Method.GET -> !! / "foo" =>
+       rateLimitService.checkIsLimited("APIkeyForTest")
        ZIO.succeed(Response.json(("foo" -> "bar").toJson))
    }
 }

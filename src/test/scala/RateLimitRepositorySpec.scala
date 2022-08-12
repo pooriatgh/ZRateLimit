@@ -1,10 +1,9 @@
 import client.rateLimit.models.RateLimitConfigModel.BucketConfig
-import client.rateLimit.models.RateLimitModel.BucketModel
-import client.rateLimit.models.{RateLimitConfigModel, RateLimitModel}
+import client.rateLimit.models.{BucketModel, RateLimitConfigModel, RateLimitModel}
 import client.rateLimit.repository.{RateLimitRepository, RateLimitRepositoryInMemoryLive}
-import zio._
+import zio.*
 import zio.stm.TMap
-import zio.test._
+import zio.test.*
 object RateLimitRepositorySpec extends ZIOSpecDefault {
 
   override def spec: Spec[Any, Any] = {
@@ -15,7 +14,7 @@ object RateLimitRepositorySpec extends ZIOSpecDefault {
           service <- ZIO.service[RateLimitRepository]
           _ <- service.put("test",BucketModel(BucketConfig(5,5.seconds),"test",5))
           b <- service.get("test")
-        } yield assertTrue(b.isDefined)
+        } yield assertTrue(b!=null)
 
       }
     }
