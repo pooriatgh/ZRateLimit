@@ -7,7 +7,6 @@ import client.rateLimit.repository.RateLimitRepository
 import zio.*
 import zio.Console.printLine
 
-
 final case class RateLimitServiceBucketLive(
     repo: RateLimitRepository
 ) extends RateLimitService {
@@ -15,7 +14,7 @@ final case class RateLimitServiceBucketLive(
   override def checkIsLimited(key: String): Task[Boolean] = {
     (for {
       a <- repo.get(key)
-    } yield a.isLimit).orElseFail(throw new Exception("Error"))
+    } yield a.isLimit).orElseFail(new Exception("Error"))
   }
 
   override def addToCheck(
@@ -25,26 +24,28 @@ final case class RateLimitServiceBucketLive(
     model match {
       case m: BucketModel =>
         val sequential = Schedule.recurs(2) andThen Schedule.spaced(2.second)
-        for{
+        for {
           _ <- printLine(s"charging buckets ${m.id}").repeat(sequential).fork
-          _ <-  repo.put(m.id, m).orElseFail(throw new Exception("Error"))
+          _ <- repo.put(m.id, m).orElseFail(new Exception("Error"))
           _ <- printLine(s"Done")
         } yield ()
 
       case _ =>
-        throw new RuntimeException(
-          "Invalid config type passed here as a bucket config use BucketConfig when your limitService is a bucket."
+        ZIO.fail(
+          new RuntimeException(
+            "Invalid config type passed here as a bucket config use BucketConfig when your limitService is a bucket."
+          )
         )
     }
 
   }
 
   override def increment(key: String): Task[Unit] = {
-    (for{
+    (for {
       oldValue <- repo.get(key).map(_.asInstanceOf[BucketModel])
       newValue = oldValue.copy(capacity = oldValue.capacity + 1)
-      _ <- repo.put(key,newValue)
-    } yield ()).orElseFail(throw new Exception("Error"))
+      _ <- repo.put(key, newValue)
+    } yield ()).orElseFail(new Exception("Error"))
   }
 }
 object RateLimitServiceBucketLive {

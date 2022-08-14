@@ -25,4 +25,7 @@ final case class RateLimitServerLive(fooRoutes: FooRoutes)
 object RateLimitServerLive {
   val layer: ZLayer[FooRoutes, Throwable, RateLimitServerService] =
     ZLayer.fromFunction(RateLimitServerLive.apply(_))
+
+  val service: ZIO[FooRoutes, Throwable, Nothing] = layer.launch
+  
 }

@@ -11,9 +11,8 @@ object RateLimitRepositorySpec extends ZIOSpecDefault {
       test("Insert and retrieve a rate limit") {
 
         for{
-          service <- ZIO.service[RateLimitRepository]
-          _ <- service.put("test",BucketModel(BucketConfig(5,5.seconds),"test",5))
-          b <- service.get("test")
+          _ <- RateLimitRepository.put("test",BucketModel(BucketConfig(5,5.seconds),"test",5))
+          b <- RateLimitRepository.get("test")
         } yield assertTrue(b!=null)
 
       }

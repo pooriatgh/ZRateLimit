@@ -12,3 +12,16 @@ trait RateLimitRepository {
   ): ZIO[Any, RateLimitError, Unit]
   def delete(key: String): ZIO[Any, RateLimitError, Unit]
 }
+
+//accessors
+object RateLimitRepository{
+    def get(key: String): ZIO[RateLimitRepository, RateLimitError, RateLimitModel] =
+        ZIO.serviceWithZIO[RateLimitRepository](_.get(key))
+    def put(
+        key: String,
+        rateLimit: RateLimitModel
+    ): ZIO[RateLimitRepository, RateLimitError, Unit] =
+        ZIO.serviceWithZIO[RateLimitRepository](_.put(key, rateLimit))
+    def delete(key: String): ZIO[RateLimitRepository, RateLimitError, Unit] =
+        ZIO.serviceWithZIO[RateLimitRepository](_.delete(key))
+}
